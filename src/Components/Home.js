@@ -3,7 +3,7 @@ import React, { use, useEffect, useState } from "react";
 import { db } from "./firebaseConfig";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchProducts } from "../Redux/slices/E_comSlice";
+import { deleteProductAsync, fetchProducts } from "../Redux/slices/E_comSlice";
 
 
 
@@ -21,6 +21,7 @@ const Home = () => {
     dispatch(fetchProducts());
   }, [dispatch]);
 
+  
   return (
     <div>
           <h1>Product List</h1>
@@ -47,9 +48,9 @@ const Home = () => {
                <td>
                  <button
                    className="button"
-                   onClick={() => {
-                    //  handleDelete(product.id);
-                   }}
+                   onClick={() => {dispatch(deleteProductAsync(product.id)).then(() => {
+                    dispatch(fetchProducts());
+                   }); }}
                  >
                    Delete
                  </button>

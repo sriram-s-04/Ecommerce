@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { get, onValue, push, ref, set } from "firebase/database";
-import { db } from "../../Components/firebaseConfig";
+import { get, push, ref, remove, set } from "firebase/database";
+import { db } from "../../Components/firebaseConfig"; // Assuming this is a utility to create object URLs
 
 export const fetchProducts = createAsyncThunk(
   "datas/fetchProducts",
@@ -17,16 +17,58 @@ export const fetchProducts = createAsyncThunk(
     }));
   }
 );
+export const addProductAsync = createAsyncThunk(
+  "products/addProductAsync",
+  async (product) => {
+    console.log("Adding product:", product  );
+    
+    const newProductRef = push(ref(db, "products"));  
+    await set(newProductRef, {
+      title: product.title,
+      price: product.price,
+      category: product.category,
+      image: product.image ? URL.createObjectURL(product.image) : null,
+    });
+    return { id: newProductRef.key,
+      ...product,
+     };
+  }
+);
 
-const e_com = createSlice({ 
+//edit product
+export const editProductAsync = createAsyncThunk(
+  "products/editProductAsync",
+  async (product) => {
+    console.log("Editing product:", product);
+    
+    const productRef = ref(db, `products/${product.id}`);
+    await set(productRef, {
+      title: product.title,
+      price: product.price,
+      category: product.category,
+      image: product.image ? URL.createObjectURL(product.image) : null,
+    });
+    return { id: product.id, ...product };
+  }
+);
+//delete product
+export const deleteProductAsync = createAsyncThunk(
+  "products/deleteProductAsync",
+  async (productId) => {
+    await remove(ref(db, `products/${productId}`));
+    return productId;
+  }
+);
+
+const e_com = createSlice({
   name: "products",
   initialState: { 
     loading: false,
-    data: null,
+    data: [], // Initialize data as an empty array
     iserror: false,
   },
   extraReducers: (builder) => {
-    builder.addCase(fetchProducts.pending,  (state) => {
+    builder.addCase(fetchProducts.pending, (state) => {
       state.data = null; // Reset data to null while fetching
       state.loading = true; // Set loading to true while fetching 
     });
@@ -40,27 +82,9 @@ const e_com = createSlice({
     });       
 
   },
-  reducers: {
-    // You can add additional synchronous reducers here if needed
-    addProduct: (state, action) => {
-      state.data.push(action.payload);
-      // If you want to sync with Firebase here, use action.payload instead of formData
-      const newRef = ref(db, 'products');
-      const newProductRef = push(newRef);
-      set(newProductRef, {
-        title: action.payload.title,
-        price: action.payload.price,
-        category: action.payload.category,
-        image: action.payload.image ? URL.createObjectURL(action.payload.image) : null // Convert file to URL for display
-      })
-      .then(() => {
-        alert('Product added successfully!');
-      });
-    },
-  },
+  reducers: {},
 });
 
 
 
-export const { addProduct } = e_com.actions;
 export default e_com.reducer;
