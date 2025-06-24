@@ -29,3 +29,10 @@
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
+.img_size{
+    width: 200px;
+    height: 200px;
+    border-radius: 10%;
+    margin-bottom: 20px;
+
+}

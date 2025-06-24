@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { get, push, ref, remove, set } from "firebase/database";
+import { get, push, ref, remove, set, update } from "firebase/database";
 import { db } from "../../Components/firebaseConfig"; // Assuming this is a utility to create object URLs
 
 export const fetchProducts = createAsyncThunk(
@@ -20,16 +20,16 @@ export const fetchProducts = createAsyncThunk(
 export const addProductAsync = createAsyncThunk(
   "products/addProductAsync",
   async (product) => {
-    console.log("Adding product:", product  );
-    
-    const newProductRef = push(ref(db, "products"));  
+    // console.log("Adding product:", product  );
+    const newProductRef = push(ref(db, "products"));
     await set(newProductRef, {
       title: product.title,
       price: product.price,
       category: product.category,
-      image: product.image ? URL.createObjectURL(product.image) : null,
+      image: product.image || null,
     });
-    return { id: newProductRef.key,
+    return {
+      id: newProductRef.key,
       ...product,
      };
   }
@@ -39,14 +39,14 @@ export const addProductAsync = createAsyncThunk(
 export const editProductAsync = createAsyncThunk(
   "products/editProductAsync",
   async (product) => {
-    console.log("Editing product:", product);
-    
+    // console.log("Editing product:", product);
+
     const productRef = ref(db, `products/${product.id}`);
-    await set(productRef, {
+    await update(productRef, {
       title: product.title,
       price: product.price,
       category: product.category,
-      image: product.image ? URL.createObjectURL(product.image) : null,
+      image: product.image || null,
     });
     return { id: product.id, ...product };
   }
@@ -59,6 +59,7 @@ export const deleteProductAsync = createAsyncThunk(
     return productId;
   }
 );
+
 
 const e_com = createSlice({
   name: "products",

@@ -3,7 +3,8 @@ import React, { use, useEffect, useState } from "react";
 import { db } from "./firebaseConfig";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { deleteProductAsync, fetchProducts } from "../Redux/slices/E_comSlice";
+import { deleteProductAsync, editProductAsync, fetchProducts } from "../Redux/slices/E_comSlice";
+import "./DataEntery.css"
 
 
 
@@ -11,7 +12,7 @@ import { deleteProductAsync, fetchProducts } from "../Redux/slices/E_comSlice";
 const Home = () => {
 
   const  state = useSelector((state) => state.products);
-  console.log("State:", state);
+  // console.log("State:", state);
   const dispatch = useDispatch();
   const nav = useNavigate();
 
@@ -21,7 +22,9 @@ const Home = () => {
     dispatch(fetchProducts());
   }, [dispatch]);
 
-  
+   function editProduct(product) {
+     nav(`/data_entry`, { state: { ...product,isEditMode:true } });
+   }
   return (
     <div>
           <h1>Product List</h1>
@@ -42,15 +45,16 @@ const Home = () => {
                <td>{product.category}</td>
                <td>
                  {product.image && (
-                   <img src={product.image} alt={product.title} />
+                   <img src={product.image} alt={product.title} className="img_size" />
                  )}
                </td>
                <td>
                  <button
                    className="button"
-                   onClick={() => {dispatch(deleteProductAsync(product.id)).then(() => {
-                    dispatch(fetchProducts());
-                   }); }}
+                   onClick={() => {dispatch(deleteProductAsync(product.id))
+                    .then(() => {
+                    dispatch(fetchProducts());});
+                   }}
                  >
                    Delete
                  </button>
@@ -58,7 +62,7 @@ const Home = () => {
                <td>
                  <button
                    className="button"
-                   onClick={() => nav(`/data_entry`, { state: product })}
+                   onClick={() => editProduct(product)}
                  >
                    Edit
                  </button>
